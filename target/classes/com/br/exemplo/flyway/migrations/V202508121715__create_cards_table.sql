@@ -1,0 +1,8 @@
+CREATE TABLE cards (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    board_column_id BIGINT NOT NULL,
+    CONSTRAINT cards_board_column_id_fk FOREIGN KEY(board_column_id) REFERENCES boards(id) ON DELETE CASCADE
+)ENGINE=InnoDB DEFAULT CHARSET UTF8

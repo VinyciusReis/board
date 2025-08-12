@@ -1,0 +1,9 @@
+CREATE TABLE blocks (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    blocked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    block_reason VARCHAR(255) NOT NULL,
+    unblocked_at TIMESTAMP NULL,
+    unblock_reason VARCHAR(255) NULL,
+    card_id BIGINT NOT NULL,
+    CONSTRAINT blocks_card_id_fk FOREIGN KEY (card_id) REFERENCES cards(id) ON DELETE CASCADE
+)ENGINE=InnoDB DEFAULT CHARSET UTF8
