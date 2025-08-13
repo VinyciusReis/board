@@ -1,5 +1,6 @@
 package com.br.exemplo.entity;
 
+import java.util.List;
 import java.util.stream.Stream;
 
 public enum BoardColumnKindEnum {
@@ -10,5 +11,10 @@ public enum BoardColumnKindEnum {
                 .filter(b -> b.name().equals(name))
                 .findFirst()
                 .orElseThrow();
+    }
+
+    public static List<String> toList() {
+        return Stream.of(BoardColumnKindEnum.values())
+                .map(b -> b.name()).toList();
     }
 }
