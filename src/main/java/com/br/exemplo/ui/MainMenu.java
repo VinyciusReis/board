@@ -15,11 +15,12 @@ import com.br.exemplo.service.BoardService;
 
 public class MainMenu {
 
-    private final Scanner scanner = new Scanner(System.in).useDelimiter("\n");
-    private final BoardService service = new BoardService();
+    private Scanner scanner = new Scanner(System.in).useDelimiter(",|\\R");
+
+    private final BoardService boardService = new BoardService();
 
     public void execute() throws SQLException {
-        System.out.println("Bem-vindo ao gerenciador de tarefas. Escolha uma das opções abaixo:");
+        System.out.println("Bem-vindo ao gerenciador de boards. Escolha uma das opções abaixo:");
         while(true) {
             System.out.println("1- Criar um novo board");
             System.out.println("2- Selecionar um board");
@@ -40,28 +41,30 @@ public class MainMenu {
         var entity = new Board();
         System.out.println("Informe o nome do seu board:");
         entity.setName(scanner.next());
-        
+
         System.out.println("Quantas colunas deseja criar além das 3 colunas obrigatórias?");
         var additionalColumns = scanner.nextInt();
 
-        var columns = createMandatoryColumns(additionalColumns);
+        var columns = createInitialColumns(additionalColumns);
 
-        for(int i = 0; i < additionalColumns; i++) {
+        for(int i=0; i < additionalColumns; i++) {
             System.out.println("Informe o nome da coluna PENDING do board:");
             var columnName = scanner.next();
-            var pendingColumn = createColumn(columnName, PENDING, i + 1);
-            columns.add(i, pendingColumn);
+            var pendingColumn = createColumn(columnName, PENDING, i+1);
+            columns.add(i+1, pendingColumn);
         }
         entity.setColumns(columns);
-        service.insert(entity);
+        boardService.insert(entity);
     }
 
     private void selectBoard() throws SQLException {
         System.out.println("Digite o id do board que deseja selecionar:");
         var id = scanner.nextLong();
-        var optional = service.findById(id);
-        optional.ifPresentOrElse(
-                b ->  new BoardMenu(b).execute(),
+        var optional = boardService.findById(id);
+            optional.ifPresentOrElse(
+                b ->  {
+                    new BoardMenu(b).execute();
+                },
                 () -> System.out.printf("Não foi encontrado um board com id %s\n", id)
             );
     }
@@ -69,30 +72,25 @@ public class MainMenu {
     private void deleteBoard() throws SQLException {
         System.out.println("Digite o id do board que deseja remover:");
         var id = scanner.nextLong();
-        if(service.delete(id)) {
+        if(boardService.delete(id)) {
             System.out.println("Board removido com sucesso!");
         }else {
             System.out.printf("Board com id %s não existe!\n", id);
         }
     }
 
-    private List<BoardColumn> createMandatoryColumns(int additionalColumns) {
-
+    private List<BoardColumn> createInitialColumns(int additionalColumns) {
         List<BoardColumn> columns = new ArrayList<>();
-
-        var boardColumnKindList = 
-            BoardColumnKindEnum.toList().stream().filter(k -> k.equals("PENDING")).toList();
-
-        var boardColumnCount = additionalColumns + boardColumnKindList.size();
-
-        for(int i = 0; i < boardColumnKindList.size(); i++) {
-            System.out.printf("Informe o nome da coluna %s\n", boardColumnKindList.get(i));
-            var columnName = scanner.nextLine();
-            var order = i;
-            if(i > 0) {
+        var initialBoardColumnKindList = BoardColumnKindEnum.getInitialKindsList();
+        var boardColumnCount = initialBoardColumnKindList.size() + additionalColumns;
+        var order = 0;
+        for(int i=0; i < initialBoardColumnKindList.size(); i++) {
+            System.out.printf("Informe o nome da coluna %s\n", initialBoardColumnKindList.get(i));
+            var columnName = scanner.next();
+            if(order > 0) {
                 order = boardColumnCount - (additionalColumns--);
             }
-            var column = createColumn(columnName, findByName(boardColumnKindList.get(i)), order);
+            var column = createColumn(columnName, findByName(initialBoardColumnKindList.get(i)), order++);
             columns.add(column);
         }
         return columns;

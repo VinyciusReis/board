@@ -13,8 +13,10 @@ public enum BoardColumnKindEnum {
                 .orElseThrow();
     }
 
-    public static List<String> toList() {
+    public static List<String> getInitialKindsList() {
         return Stream.of(BoardColumnKindEnum.values())
-                .map(b -> b.name()).toList();
+                .filter(b -> !b.name().equals("PENDING"))
+                .map(b -> b.name())
+                .toList();
     }
 }

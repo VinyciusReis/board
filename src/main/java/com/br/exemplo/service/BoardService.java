@@ -24,7 +24,6 @@ public class BoardService {
         for(var column : columns) {
             boardColumnDAO.insert(column);
         }
-
         return board;
     }
 
