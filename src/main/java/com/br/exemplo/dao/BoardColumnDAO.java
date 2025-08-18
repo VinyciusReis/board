@@ -33,7 +33,7 @@ public class BoardColumnDAO {
                 var boardColumn = new BoardColumn();
                 boardColumn.setId(resultSet.getLong("id"));
                 boardColumn.setName(resultSet.getString("name"));
-                boardColumn.setOrder(resultSet.getInt("`order`"));
+                boardColumn.setOrder(resultSet.getInt("order"));
                 boardColumn.setKind(findByName(resultSet.getString("kind")));
                 boardColumn.getBoard().setId(cardId);
                 columns.add(boardColumn);

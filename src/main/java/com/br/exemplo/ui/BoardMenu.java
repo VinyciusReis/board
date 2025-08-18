@@ -62,7 +62,7 @@ public class BoardMenu {
         cardService.insert(card);
     }
 
-    private void moveCardToNextColumn() {
+    private void moveCardToNextColumn() throws SQLException {
         Card card =  new Card();
         System.out.println("Informe o id do card que deseja mover:");
         card.setId(scanner.nextLong());
@@ -72,19 +72,48 @@ public class BoardMenu {
         cardService.moveToNextColumn(card.getId(), boardColumnsInfo);
     }
 
-    private void cancelCard() {
-
+    private void cancelCard() throws SQLException {
+        System.out.println("Informe o id do card que deseja cancelar:");
+        var cardId = scanner.nextLong();
+        var boardColumnsInfo = entity.getColumns().stream()
+                                .map(bc -> new BoardColumnInfoDTO(bc.getId(), bc.getOrder(), bc.getKind()))
+                                .toList(); 
+        cardService.cancel(cardId, boardColumnsInfo);
     }
 
-    private void blockCard() {
-
+    private void blockCard() throws SQLException {
+        System.out.println("Informe o id do card que será bloqueado");
+        var cardId = scanner.nextLong();
+        System.out.println("Informe o motivo do bloqueio do card");
+        var reason = scanner.next();
+        var boardColumnsInfo = entity.getColumns().stream()
+                                .map(bc -> new BoardColumnInfoDTO(bc.getId(), bc.getOrder(), bc.getKind()))
+                                .toList();
+        cardService.block(cardId, reason, boardColumnsInfo);
     }
 
-    private void unblockCard() {
-
+    private void unblockCard() throws SQLException {
+        System.out.println("Informe o id do card que será desbloqueado");
+        var cardId = scanner.nextLong();
+        System.out.println("Informe o motivo do desbloqueio do card");
+        var reason = scanner.next();
+        cardService.unblock(cardId, reason);                            
     }
 
-    private void showCard() {
+    private void showCard() throws SQLException {
+        System.out.println("Informe o id do card que deseja visualizar");
+        var selectedCardId = scanner.nextLong();
+        cardService.findById(selectedCardId)
+            .ifPresentOrElse(
+                c -> {
+                    System.out.printf("Card %s - %s.\n", c.id(), c.title());
+                    System.out.printf("Descrição: %s\n", c.description());
+                    System.out.println(c.blocked() ?
+                                        "Está bloqueado. Motivo: " + c.block_reason() :
+                                        "Não está bloqueado");
+                    System.out.printf("Já foi bloqueado %s vezes\n", c.blocks_amount());
+                    System.out.printf("Está no momento na coluna %s - %s\n", c.column_id(), c.column_name());
+            }, null);
         
     }
 }
